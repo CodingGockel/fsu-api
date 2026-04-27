@@ -1,7 +1,7 @@
 # .gitignore
 .env
 .vscode
-.fsu-autheticator-venv
+.fsu-api-venv
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

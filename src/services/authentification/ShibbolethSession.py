@@ -1,7 +1,5 @@
-import os
 import requests
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 import re
 
 class ShibbolethSession:
@@ -22,17 +20,16 @@ class ShibbolethSession:
         self,
         service_base_url: str,
         idp_base_url: str,
-        username: str | None = None,
-        password: str | None = None,
+        username: str,
+        password: str,
         headers: dict | None = None,
     ):
-        load_dotenv()
         self.service_url: str = service_base_url
         self.idp_base_url: str = f'https://{idp_base_url}'
         self.entry_url: str = f'https://{service_base_url}/auth/shibboleth/index.php'
         self.post_url: str = f'https://{service_base_url}/Shibboleth.sso/SAML2/POST'
-        self.username: str = username or os.getenv('MOODLE_USERNAME')
-        self.password: str = password or os.getenv('MOODLE_PASSWORD')
+        self.username: str = username
+        self.password: str = password
         self.headers: dict = headers or self.DEFAULT_HEADERS
         self.session: requests.Session = requests.Session()
         self.sess_key: str = ''
