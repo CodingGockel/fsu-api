@@ -39,7 +39,7 @@ class ShibbolethSession:
     
     def _get_sess_key(self) -> str:
         res = self.session.get(f'https://{self.service_url}/my/', headers=self.headers)
-        sesskey = re.search(r'"sesskey":"([^"]+)"', res.text).group(1)
+        sesskey = re.search(r'"sesskey":"([^"]+)"', res.text).group(1) # type: ignore 
         return sesskey         
     
     def _fetch_login_page(self) -> requests.Response:
@@ -47,8 +47,8 @@ class ShibbolethSession:
         return res
         
     def _local_storage_check(self, soup: BeautifulSoup) -> requests.Response:
-        csrf_token: str = soup.find('input', {'name': 'csrf_token'})['value']
-        form_action: str = soup.find('form', {'name': 'form1'})['action']
+        csrf_token: str = soup.find('input', {'name': 'csrf_token'})['value'] # type: ignore 
+        form_action: str = soup.find('form', {'name': 'form1'})['action'] # type: ignore 
         idp_post_url: str = self.idp_base_url + form_action
         res: requests.Response = self.session.post(
             idp_post_url,
@@ -68,8 +68,8 @@ class ShibbolethSession:
         return res
     
     def _post_login(self, soup: BeautifulSoup) -> requests.Response:
-        csrf_token: str = soup.find('input', {'name': 'csrf_token'})['value']
-        form_action: str = soup.find('form')['action']
+        csrf_token: str = soup.find('input', {'name': 'csrf_token'})['value'] # type: ignore 
+        form_action: str = soup.find('form')['action'] # type: ignore 
         idp_login_url: str = self.idp_base_url + form_action
         res:requests.Response = self.session.post(
             idp_login_url,
@@ -84,15 +84,15 @@ class ShibbolethSession:
         return res
     
     def _post_SAML2(self, soup: BeautifulSoup) -> requests.Response:
-        saml_response: str = soup.find('input', {'name': 'SAMLResponse'})
-        relay_state: str = soup.find('input', {'name': 'RelayState'})
+        saml_response: str = soup.find('input', {'name': 'SAMLResponse'}) # type: ignore 
+        relay_state: str = soup.find('input', {'name': 'RelayState'}) # type: ignore 
         if saml_response and relay_state:
             res = self.session.post(
                 self.post_url,
                 headers={**self.headers, 'content-type': 'application/x-www-form-urlencoded'},
                 data={
-                    'SAMLResponse': saml_response['value'],
-                    'RelayState': relay_state['value'],
+                    'SAMLResponse': saml_response['value'], # type: ignore 
+                    'RelayState': relay_state['value'], # type: ignore 
                 }
             )
         else:
@@ -105,7 +105,7 @@ class ShibbolethSession:
         current_response = self._post_login(self._get_soup(current_response))
         current_response = self._post_SAML2(self._get_soup(current_response))
         self.sess_key = self._get_sess_key()
-        
+    
     def get_session(self) -> requests.Session:
         return self.session
     
@@ -116,4 +116,8 @@ class ShibbolethSession:
         res: requests.Response = self.session.get(f'https://{self.service_url}/my/')
         if(res.status_code == 200):
             return True
-        return False    
+        return False
+    
+    def get_service_url(self) -> str:
+        return self.service_url
+
